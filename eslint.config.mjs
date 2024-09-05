@@ -14,7 +14,7 @@ const compat = new FlatCompat({
 });
 
 export default [{
-    ignores: ["**/*.js", "**/extra", "node_modules/**/*"],
+    ignores: ["eslint.config.mjs", "**/*.js", "**/extra", "node_modules/**/*"],
 }, ...compat.extends(
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -24,38 +24,26 @@ export default [{
     plugins: {
         "@typescript-eslint": typescriptEslint,
     },
-
     languageOptions: {
         parser: tsParser,
         ecmaVersion: 5,
         sourceType: "script",
-
         parserOptions: {
-            tsconfigRootDir: "C:\\Users\\Home\\GitHub\\pkgbase-61-self-hosted",
+            tsconfigRootDir: ".",
             project: ["./tsconfig.json"],
         },
     },
-
     rules: {
-        "@typescript-eslint/ban-types": ["error", {
-            types: {
-                object: false,
-            },
-
-            extendDefaults: true,
-        }],
-
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/no-non-null-assertion": 0,
         "@typescript-eslint/no-unsafe-assignment": 0,
         "@typescript-eslint/no-unsafe-call": 0,
         "@typescript-eslint/no-unsafe-member-access": 0,
         "@typescript-eslint/no-unsafe-return": 0,
-
+        "@typescript-eslint/no-unsafe-argument": 0,
         "@typescript-eslint/no-unused-vars": ["error", {
             argsIgnorePattern: "^_",
         }],
-
         "@typescript-eslint/no-misused-promises": ["error", {
             checksVoidReturn: false,
         }],
