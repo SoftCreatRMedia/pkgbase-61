@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 rm -rf pkgbase
-git clone git@github.com:SoftCreatRMedia/pkgbase-61-self-hosted.git pkgbase
+git clone https://github.com/SoftCreatRMedia/pkgbase-61-self-hosted.git pkgbase
 rm -rf pkgbase/.git
 rm -rf .github
 rm -f .gitignore
