@@ -51,10 +51,6 @@ ehthumbs.db
 *.backup
 *.swp
 
-# Package manager lock files
-package-lock.json
-yarn.lock
-
 # IDE-specific files (examples for various editors)
 .vscode/
 .idea/

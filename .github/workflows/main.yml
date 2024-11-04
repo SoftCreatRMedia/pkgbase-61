@@ -1,0 +1,329 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  init:
+    runs-on: self-hosted
+    outputs:
+      check_ts: ${{ steps.ts_check.outputs.check_ts }}
+      check_scss: ${{ steps.scss_check.outputs.check_scss }}
+      check_php: ${{ steps.php_check.outputs.check_php }}
+      check_js: ${{ steps.js_check.outputs.check_js }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get Commit Message
+        id: get_commit_message
+        run: |
+          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+
+      - name: Identify Changed Files
+        id: changed_files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            **/*.ts
+            **/*.scss
+            **/*.php
+            **/*.js
+
+      - name: Set Release Flag
+        id: set_release
+        run: |
+          if [[ "${{ steps.get_commit_message.outputs.commit_message }}" == \[Release\]* ]]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for TypeScript Changes
+        id: ts_check
+        run: |
+          if [[ "${{ steps.set_release.outputs.is_release }}" == "true" ]]; then
+            if find . -type f -name '*.ts' | grep -q .; then
+              echo "check_ts=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_ts=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            if echo "${{ steps.changed_files.outputs.all_changed_files }}" | grep -q "\.ts"; then
+              echo "check_ts=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_ts=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Check for SCSS Changes
+        id: scss_check
+        run: |
+          if [[ "${{ steps.set_release.outputs.is_release }}" == "true" ]]; then
+            if find . -type f -name '*.scss' | grep -q .; then
+              echo "check_scss=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_scss=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            if echo "${{ steps.changed_files.outputs.all_changed_files }}" | grep -q "\.scss"; then
+              echo "check_scss=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_scss=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Check for PHP Changes
+        id: php_check
+        run: |
+          if [[ "${{ steps.set_release.outputs.is_release }}" == "true" ]]; then
+            if find . -type f -name '*.php' | grep -q .; then
+              echo "check_php=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_php=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            if echo "${{ steps.changed_files.outputs.all_changed_files }}" | grep -q "\.php"; then
+              echo "check_php=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_php=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Check for JavaScript Changes
+        id: js_check
+        run: |
+          if [[ "${{ steps.set_release.outputs.is_release }}" == "true" ]]; then
+            if find . -type f -name '*.js' | grep -q .; then
+              echo "check_js=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_js=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            if echo "${{ steps.changed_files.outputs.all_changed_files }}" | grep -q "\.js"; then
+              echo "check_js=true" >> $GITHUB_OUTPUT
+            else
+              echo "check_js=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  php:
+    name: PHP Code Style, Fixes, and Syntax Check
+    needs: init
+    if: needs.init.outputs.check_php == 'true'
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        php-version: [8.1, 8.2, 8.3]
+      max-parallel: 1
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ctype, dom, exif, gd, gmp, hash, intl, json, libxml, mbstring, opcache, pcre, pdo, pdo_mysql, zlib
+          tools: cs2pr, phpcs, php-cs-fixer
+      - name: PHP Code Style Check (phpcs)
+        run: |
+          phpcs -n -q --report=checkstyle | cs2pr
+      - name: PHP Code Fix Check (php-cs-fixer)
+        run: |
+          php-cs-fixer fix --dry-run --diff
+      - name: PHP Syntax Check
+        run: |
+          files_dirs=$(find . -type d -name 'files*')
+          if [ -n "$files_dirs" ]; then
+            for dir in $files_dirs; do
+              echo "Checking PHP files in directory: $dir"
+              ! find "$dir" -type f -name '*.php' -exec php -l '{}' \; 2>&1 |grep -v '^No syntax errors detected'
+            done
+          fi
+      - name: Add PHP Syntax Matcher
+        run: |
+          echo "::add-matcher::.github/php-syntax.json"
+
+  typescript:
+    name: TypeScript Linting and Syntax Check
+    needs: init
+    if: needs.init.outputs.check_ts == 'true'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: TypeScript Syntax Check
+        run: |
+          npx tsc --noEmit
+      - name: ESLint
+        run: | 
+          npx eslint .
+      - name: Prettier Format Check
+        run: |
+          npx prettier --check "**/*.ts"
+      - name: Show TypeScript Diff
+        run: |
+          git diff --exit-code -- '*.ts'
+      - name: Add TypeScript Matcher
+        run: |
+          echo "::add-matcher::.github/diff.json"
+
+  javascript:
+    name: JavaScript Linting and Syntax Check
+    needs: init
+    if: needs.init.outputs.check_js == 'true'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Check JavaScript Syntax
+        run: |
+          files_dirs=$(find . -type d -name 'files*')
+          if [ -n "$files_dirs" ]; then
+            for dir in $files_dirs; do
+              echo "Checking JavaScript files in directory: $dir"
+              ! find "$dir" -type f -name '*.js' -exec node -c '{}' \; 2>&1 | \
+                awk 'BEGIN {m=0} /(.js):[0-9]+$/ {m=1; printf "%s - ",$0} m==1 && /^SyntaxError/ { m=0; print }' | \
+                sed "s@$(pwd)@.@" | grep '^'
+            done
+          fi
+      - name: Add JavaScript Syntax Matcher
+        run: |
+          echo "::add-matcher::.github/javascript-syntax.json"
+      - name: Show JavaScript Syntax Diff
+        run: |
+          git diff --exit-code -- '*.js'
+
+  scss:
+    name: SCSS Prettier
+    needs: init
+    if: needs.init.outputs.check_scss == 'true'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for package.json
+        id: check_files
+        uses: andstor/file-existence-action@v3
+        with:
+          files: "package.json"
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Run Prettier on SCSS
+        run: |
+          npx prettier --check "files/style/**/*.scss"
+      - name: Show SCSS Diff
+        run: |
+          git diff --exit-code -- '*.scss'
+      - name: Add SCSS Matcher
+        run: |
+          echo "::add-matcher::.github/diff.json"
+
+  javascript_sync:
+    name: Check for Outdated JavaScript
+    needs: init
+    if: needs.init.outputs.check_js == 'true' || needs.init.outputs.check_ts == 'true'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Remove Specific Directories
+        run: |
+          rm -rf files/js/SoftCreatR/
+          rm -rf files/js/MysteryCode/
+      - name: Run TSC
+        run: |
+          npx tsc
+      - name: Add JavaScript Sync Matcher
+        run: |
+          echo "::add-matcher::.github/diff.json"
+      - name: Show JavaScript Sync Diff
+        run: |
+          git checkout -- package-lock.json
+          git diff --exit-code -- '*.js'
+
+  create-release:
+    needs: [ init, php, typescript, javascript, scss, javascript_sync ]
+    if: always() && (startsWith(github.event.head_commit.message, '[Release]') || startsWith(github.ref, 'refs/tags/')) && !contains(needs.*.result, 'failure')
+    runs-on: self-hosted
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: List Existing Tags
+        run: git tag -l
+      - name: Clean Git Repository
+        run: |
+          git fetch --prune --tags
+          git tag -d $(git tag) || true
+          git fetch --tags
+      - name: Get current version
+        id: current-version
+        run: |
+          version=$(grep '<version>' package.xml | sed -E 's/.*<version>([^<]+)<\/version>.*/\1/')
+          echo "version=$version" >> $GITHUB_ENV
+
+      - name: Create Tag
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git rev-parse "${{ env.version }}" >/dev/null 2>&1; then
+            echo "Tag ${{ env.version }} already exists. Skipping tag creation."
+          else
+            git tag -a "${{ env.version }}" -m "Release v${{ env.version }}"
+          fi
+      - name: Push Tag
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git push https://x-access-token:${PAT_TOKEN}@github.com/${{ github.repository }}.git "${{ env.version }}"
+      - name: Verify Tag Push
+        run: |
+          git fetch --tags
+          git tag -l
+      - name: Trigger Build Workflow
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          event-type: Build
+          client-payload: '{"tag": "${{ env.version }}"}'
+      - name: Clean Workspace
+        if: always()
+        run: git clean -fdx && git reset --hard
