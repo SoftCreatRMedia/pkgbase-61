@@ -67,6 +67,8 @@ PaxHeader/
 # Additional Specific Ignoring Rules
 # ===============================
 
+.php-cs-fixer.dist.php
+
 # Ignore environment variable files
 .env
 .env.local
