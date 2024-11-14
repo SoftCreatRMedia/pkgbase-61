@@ -102,7 +102,7 @@ jobs:
         id: js_check
         run: |
           if [[ "${{ steps.set_release.outputs.is_release }}" == "true" ]]; then
-            if find . -type f -name '*.js' | grep -q .; then
+            if find . -type f -name '*.js' ! -path '**/3rdParty/*' | grep -q .; then
               echo "check_js=true" >> $GITHUB_OUTPUT
             else
               echo "check_js=false" >> $GITHUB_OUTPUT
