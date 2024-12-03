@@ -2,6 +2,8 @@
 <ruleset>
 	<file>.</file>
 	<exclude-pattern>lib/system/api/*</exclude-pattern>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
 	<arg name="extensions" value="php" />
 	<arg value="p"/>
 	<arg name="basepath" value="."/>
