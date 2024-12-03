@@ -16,6 +16,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.client_payload.tag }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
