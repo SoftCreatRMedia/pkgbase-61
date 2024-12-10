@@ -68,6 +68,7 @@ PaxHeader/
 # ===============================
 
 .php-cs-fixer.dist.php
+.phpstorm.meta.php
 
 # Ignore environment variable files
 .env
