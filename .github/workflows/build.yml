@@ -11,7 +11,7 @@ jobs:
       github.event_name == 'repository_dispatch' &&
       github.event.client_payload.tag != ''
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write
     steps:
