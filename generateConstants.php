@@ -19,7 +19,7 @@ $xml->registerXPathNamespace('ns', $namespaces['']);
 
 $constants = ["const WCF_N = 1;"];
 
-foreach ($xml->xpath('//ns:option') as $option) {
+foreach ($xml->xpath('//ns:import/ns:options/ns:option') as $option) {
     $name = \strtoupper(\str_replace(['.', ':'], '_', (string)$option['name']));
     $defaultValue = (string)$option->defaultvalue;
     $optionType = (string)$option->optiontype;
