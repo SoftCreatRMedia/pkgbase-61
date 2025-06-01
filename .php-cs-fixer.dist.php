@@ -6,6 +6,7 @@ $finder = PhpCsFixer\Finder::create()
     ->notPath('lib/system/api');
 
 return (new PhpCsFixer\Config())
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRiskyAllowed(true)
     ->setRules([
         '@PSR1' => true,

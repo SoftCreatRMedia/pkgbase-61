@@ -380,17 +380,13 @@ jobs:
 
       - name: PHP Code Fix Check (php-cs-fixer)
         run: |
-          php-cs-fixer fix --dry-run --diff
+          PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff
 
       - name: PHP Syntax Check
         run: |
-          files_dirs=$(find . -type d -name 'files*')
-          if [ -n "$files_dirs" ]; then
-            for dir in $files_dirs; do
-              echo "Checking PHP files in directory: $dir"
-              ! find "$dir" -type f -name '*.php' -exec php -l '{}' \; 2>&1 |grep -v '^No syntax errors detected'
-            done
-          fi
+          ! find . -type f -path "./files*/*.php" -print0 \
+            | xargs -0 -n1 -P "$(nproc)" php -l 2>&1 \
+            | grep -v '^No syntax errors detected'
 
       - name: Add PHP Syntax Matcher
         run: |
@@ -405,7 +401,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        php-version: [8.1, 8.2, 8.3]
+        php-version: [8.1, 8.2, 8.3, 8.4]
       max-parallel: 1
       fail-fast: false
     steps:
@@ -423,17 +419,13 @@ jobs:
 
       - name: PHP Code Fix Check (php-cs-fixer)
         run: |
-          php-cs-fixer fix --dry-run --diff
+          PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff
 
       - name: PHP Syntax Check
         run: |
-          files_dirs=$(find . -type d -name 'files*')
-          if [ -n "$files_dirs" ]; then
-            for dir in $files_dirs; do
-              echo "Checking PHP files in directory: $dir"
-              ! find "$dir" -type f -name '*.php' -exec php -l '{}' \; 2>&1 |grep -v '^No syntax errors detected'
-            done
-          fi
+          ! find . -type f -path "./files*/*.php" -print0 \
+            | xargs -0 -n1 -P "$(nproc)" php -l 2>&1 \
+            | grep -v '^No syntax errors detected'
 
       - name: Add PHP Syntax Matcher
         run: |
