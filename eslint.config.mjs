@@ -29,7 +29,7 @@ export default [{
         ecmaVersion: 5,
         sourceType: "script",
         parserOptions: {
-            tsconfigRootDir: ".",
+            tsconfigRootDir: __dirname,
             project: ["./tsconfig.json"],
         },
     },

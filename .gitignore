@@ -67,7 +67,6 @@ PaxHeader/
 # Additional Specific Ignoring Rules
 # ===============================
 
-.php-cs-fixer.dist.php
 .phpstorm.meta.php
 
 # Ignore environment variable files
