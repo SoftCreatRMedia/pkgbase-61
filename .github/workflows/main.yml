@@ -25,7 +25,12 @@ jobs:
       - name: Get Commit Message
         id: get_commit_message
         run: |
-          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          msg="$(git log -1 --pretty=%B)"
+          {
+            echo 'commit_message<<EOF'
+            echo "$msg"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Identify Changed Files
         id: changed_files
@@ -40,10 +45,11 @@ jobs:
       - name: Set Release Flag
         id: set_release
         run: |
-          if [[ "${{ steps.get_commit_message.outputs.commit_message }}" == \[Release\]* ]]; then
-            echo "is_release=true" >> $GITHUB_OUTPUT
+          cm="${{ steps.get_commit_message.outputs.commit_message }}"
+          if [[ "$cm" =~ ^\[Release\][[:space:]]+[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
           else
-            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check for TypeScript Changes
@@ -197,7 +203,12 @@ jobs:
       - name: Get Commit Message
         id: get_commit_message
         run: |
-          echo "commit_message=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+          msg="$(git log -1 --pretty=%B)"
+          {
+            echo 'commit_message<<EOF'
+            echo "$msg"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - name: Identify Changed Files
         id: changed_files
@@ -212,10 +223,11 @@ jobs:
       - name: Set Release Flag
         id: set_release
         run: |
-          if [[ "${{ steps.get_commit_message.outputs.commit_message }}" == \[Release\]* ]]; then
-            echo "is_release=true" >> $GITHUB_OUTPUT
+          cm="${{ steps.get_commit_message.outputs.commit_message }}"
+          if [[ "$cm" =~ ^\[Release\][[:space:]]+[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
           else
-            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check for TypeScript Changes
