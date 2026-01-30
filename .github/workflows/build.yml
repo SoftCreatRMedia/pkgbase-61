@@ -57,7 +57,7 @@ jobs:
       github.event.repository.visibility != 'public' &&
       github.event_name == 'repository_dispatch' &&
       github.event.client_payload.tag != ''
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
