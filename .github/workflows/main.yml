@@ -20,7 +20,7 @@ jobs:
       language_check: ${{ steps.language_check.outputs.language_check }}
       packagexml_check: ${{ steps.packagexml_check.outputs.packagexml_check }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get Commit Message
         id: get_commit_message
@@ -131,7 +131,7 @@ jobs:
       language_check: ${{ steps.language_check.outputs.language_check }}
       packagexml_check: ${{ steps.packagexml_check.outputs.packagexml_check }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get Commit Message
         id: get_commit_message
@@ -244,7 +244,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
@@ -283,7 +283,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
@@ -317,9 +317,9 @@ jobs:
       needs.init-public.outputs.check_ts == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -356,9 +356,9 @@ jobs:
       needs.init-private.outputs.check_ts == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -395,9 +395,9 @@ jobs:
       needs.init-public.outputs.check_js == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -434,9 +434,9 @@ jobs:
       needs.init-private.outputs.check_js == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -473,7 +473,7 @@ jobs:
       needs.init-public.outputs.check_scss == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Check for package.json
         id: check_files
         uses: andstor/file-existence-action@v3
@@ -481,7 +481,7 @@ jobs:
           files: "package.json"
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -510,7 +510,7 @@ jobs:
       needs.init-private.outputs.check_scss == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Check for package.json
         id: check_files
         uses: andstor/file-existence-action@v3
@@ -518,7 +518,7 @@ jobs:
           files: "package.json"
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -547,9 +547,9 @@ jobs:
       (needs.init-public.outputs.check_js == 'true' || needs.init-public.outputs.check_ts == 'true')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -584,9 +584,9 @@ jobs:
       (needs.init-private.outputs.check_js == 'true' || needs.init-private.outputs.check_ts == 'true')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"
@@ -637,7 +637,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -678,7 +678,7 @@ jobs:
           git tag -l
 
       - name: Trigger Build Workflow
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.PAT_TOKEN }}
           event-type: Build
@@ -712,7 +712,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -753,7 +753,7 @@ jobs:
           git tag -l
 
       - name: Trigger Build Workflow
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.PAT_TOKEN }}
           event-type: Build

@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.client_payload.tag }}
 
@@ -27,7 +27,7 @@ jobs:
       - name: Create package
         run: |
           rm -rf *.tar.gz
-          npx --yes wspackager@latest
+          npx --yes @softcreatr/wspackager@latest
 
       - name: Check file existence
         id: check_files
@@ -61,19 +61,19 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.client_payload.tag }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 
       - name: Create package
         run: |
           rm -rf *.tar.gz
-          npx --yes wspackager@latest
+          npx --yes @softcreatr/wspackager@latest
 
       - name: Check file existence
         id: check_files
